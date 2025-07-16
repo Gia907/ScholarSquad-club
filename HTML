@@ -1,0 +1,109 @@
+import React, { useState } from "react";
+
+// Example data: Replace these with your actual student names and checklist items!
+const students = [
+  { name: "Alex Johnson", id: 1 },
+  { name: "Maria Lee", id: 2 },
+  { name: "Sam Patel", id: 3 },
+];
+
+const checklistItems = [
+  "Completed homework",
+  "Understands key concept",
+  "Participated in discussion",
+  "Needs follow-up",
+];
+
+const initialStudentState = students.reduce((acc, student) => {
+  acc[student.id] = {
+    checklist: Array(checklistItems.length).fill(false),
+    notes: "",
+  };
+  return acc;
+}, {});
+
+export default function TutorClubApp() {
+  const [selectedId, setSelectedId] = useState(students[0].id);
+  const [studentData, setStudentData] = useState(initialStudentState);
+
+  const handleCheck = (idx) => {
+    setStudentData((prev) => ({
+      ...prev,
+      [selectedId]: {
+        ...prev[selectedId],
+        checklist: prev[selectedId].checklist.map((checked, i) =>
+          i === idx ? !checked : checked
+        ),
+      },
+    }));
+  };
+
+  const handleNotesChange = (e) => {
+    setStudentData((prev) => ({
+      ...prev,
+      [selectedId]: {
+        ...prev[selectedId],
+        notes: e.target.value,
+      },
+    }));
+  };
+
+  return (
+    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "sans-serif" }}>
+      {/* Sidebar */}
+      <aside style={{ width: 220, background: "#f0f0f0", padding: 20 }}>
+        <h2>Tutoring Students</h2>
+        <ul style={{ listStyle: "none", padding: 0 }}>
+          {students.map((student) => (
+            <li
+              key={student.id}
+              style={{
+                margin: "8px 0",
+                padding: "8px",
+                background: selectedId === student.id ? "#e0e7ff" : "",
+                cursor: "pointer",
+                borderRadius: 4,
+              }}
+              onClick={() => setSelectedId(student.id)}
+            >
+              {student.name}
+            </li>
+          ))}
+        </ul>
+      </aside>
+
+      {/* Main Content */}
+      <main style={{ flex: 1, padding: 32 }}>
+        <h1>{students.find((s) => s.id === selectedId).name}</h1>
+        <h3>Checklist</h3>
+        <ul style={{ listStyle: "none", padding: 0 }}>
+          {checklistItems.map((item, idx) => (
+            <li key={item} style={{ marginBottom: 10 }}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={studentData[selectedId].checklist[idx]}
+                  onChange={() => handleCheck(idx)}
+                />{" "}
+                {item}
+              </label>
+            </li>
+          ))}
+        </ul>
+        <div style={{ marginTop: 30 }}>
+          <label>
+            <strong>Notes / Needs Work:</strong>
+            <br />
+            <textarea
+              value={studentData[selectedId].notes}
+              onChange={handleNotesChange}
+              rows={4}
+              style={{ width: "100%", marginTop: 8, padding: 8, borderRadius: 4 }}
+              placeholder="Add notes or describe what the student needs help with..."
+            />
+          </label>
+        </div>
+      </main>
+    </div>
+  );
+}
